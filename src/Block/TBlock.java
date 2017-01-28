@@ -9,7 +9,7 @@ public class TBlock extends TetrisBlock{
 	}
 	
 	public TBlock(int xPos, int yPos){
-		setBlockArray(new Block[][] {{new Block(Color.GREEN), null}, {new Block(Color.GREEN), new Block(Color.GREEN)}, {new Block(Color.GREEN), null}});
+		setBlockArray(new Block[][] {{new Block(Color.MEDIUMPURPLE), null}, {new Block(Color.MEDIUMPURPLE), new Block(Color.MEDIUMPURPLE)}, {new Block(Color.MEDIUMPURPLE), null}});
 		changeXPos(xPos);
 		changeYPos(yPos);
 	}
@@ -25,8 +25,8 @@ public class TBlock extends TetrisBlock{
 	// will need to adjust for rotation
 	// also this will work because the right and left, y dimension can only have 2 blocks with a right side.
 	@Override
-	public int getRightBlock(int dimension) {
-		int value = getXPos();
+	public Integer getRightBlock(int dimension) {
+		Integer value = getXPos();
 		if(dimension == 0){
 			if(getRotationAmo() == 0) { value += 2; } 
 			else if(getRotationAmo() == 1|| getRotationAmo() == 2) { value += 1; }
@@ -34,34 +34,34 @@ public class TBlock extends TetrisBlock{
 			if(getRotationAmo() == 0 || getRotationAmo() == 1 || getRotationAmo() == 3) { value += 1; } 
 			else if(getRotationAmo() == 2) { value += 2; }
 		} else if(dimension == 2){
-			if(getRotationAmo() == 0 || getRotationAmo() == 2) { value = -1; } 
+			if(getRotationAmo() == 0 || getRotationAmo() == 2) { value = null; } 
 			else if(getRotationAmo() == 1) { value += 1; }
 		} else {
-			value = -1;
+			value = null;
 		}
 		return value;
 	}
 
 	@Override
-	public int getLeftBlock(int dimension) {
-		int value = getXPos();
+	public Integer getLeftBlock(int dimension) {
+		Integer value = getXPos();
 		if(dimension == 0){
 			if(getRotationAmo() == 1 || getRotationAmo() == 2) { value += 1; } 
 		} else if(dimension == 1){
 			if(getRotationAmo() == 0) { value += 1; } 
 		} else if(dimension == 2){
-			if(getRotationAmo() == 0 || getRotationAmo() == 2) { value = -1; } 
+			if(getRotationAmo() == 0 || getRotationAmo() == 2) { value = null; } 
 			else if(getRotationAmo() == 1) { value += 1; }
 		} else {
-			value = -1;
+			value = null;
 		}
 		return value;
 	}
 
 	// this needs to be dimensioned based in the x value
 	@Override
-	public int getBottomBlock(int dimension) {
-		int value = getYPos();
+	public Integer getBottomBlock(int dimension) {
+		Integer value = getYPos();
 		if(dimension == 0){
 			if(getRotationAmo() == 1 || getRotationAmo() == 2) { value += 1; } 
 			else if(getRotationAmo() == 3) { value += 2; }
@@ -69,26 +69,26 @@ public class TBlock extends TetrisBlock{
 			if(getRotationAmo() == 0 || getRotationAmo() == 2 || getRotationAmo() == 3) { value += 1; } 
 			else if(getRotationAmo() == 1) { value += 2; }
 		} else if(dimension == 2){
-			if(getRotationAmo() == 1 || getRotationAmo() == 3) { value = -1; } 
+			if(getRotationAmo() == 1 || getRotationAmo() == 3) { value = null; } 
 			else if(getRotationAmo() == 2) { value += 1; }
 		} else {
-			value = -1;
+			value = null;
 		}
 		return value;
 	}
 	
 	@Override
-	public int getTopBlock(int dimension){
-		int value = getYPos();
+	public Integer getTopBlock(int dimension){
+		Integer value = getYPos();
 		if(dimension == 0){
 			if(getRotationAmo() == 1 || getRotationAmo() == 2) { value += 1; } 
 		} else if(dimension == 1){
 			if(getRotationAmo() == 3) { value += 1; } 
 		} else if(dimension == 2){
-			if(getRotationAmo() == 1 || getRotationAmo() == 3) { value = -1; } 
+			if(getRotationAmo() == 1 || getRotationAmo() == 3) { value = null; } 
 			else if(getRotationAmo() == 2) { value += 1; }
 		} else {
-			value = -1;
+			value = null;
 		}
 		return value;
 	}

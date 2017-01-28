@@ -40,13 +40,13 @@ public abstract class TetrisBlock {
 		return block[dim1][dim2];
 	}
 	
-	public abstract int getRightBlock(int dimension);
+	public abstract Integer getRightBlock(int dimension);
 	
-	public abstract int getLeftBlock(int dimension);
+	public abstract Integer getLeftBlock(int dimension);
 	
-	public abstract int getBottomBlock(int dimension);
-	
-	public abstract int getTopBlock(int dimension);
+	public abstract Integer getBottomBlock(int dimension);
+	// Only used for testing...
+	public abstract Integer getTopBlock(int dimension);
 	
 	public int getXPos(){
 		return x;

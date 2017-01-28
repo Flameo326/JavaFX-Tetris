@@ -3,11 +3,20 @@ package Logic;
 import java.util.Random;
 
 import Block.Block;
+import Block.IBlock;
+import Block.JBlock;
+import Block.LBlock;
+import Block.OBlock;
+import Block.SBlock;
 import Block.TBlock;
 import Block.TetrisBlock;
+import Block.ZBlock;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
 public class Map {
@@ -16,7 +25,7 @@ public class Map {
 	private Block[][] blocks;
 	private Block defaultBlock;
 	private TetrisBlock currentBlock, nextBlock;
-	private int width, height;
+	private int width, height, score;
 	
 	public Map(int _width, int _height){
 		this(_width, _height, 20, 10);
@@ -37,15 +46,15 @@ public class Map {
 			}
 		}
 		
-		// set current and next block
-		currentBlock = new TBlock(blocks[0].length/2 - TBlock.getIntialWidth()/2, 0);
 		setNextBlock();
+		currentBlock = nextBlock;
+		currentBlock.changeYPos(1);
 		updateBlock();
+		setNextBlock();
 	}
 	
 	// update the block to the array.
 	private void updateBlock(){
-//		System.out.println("New Block at: " + currentBlock.getXPos() + ", " + currentBlock.getYPos());
 		for(int i = 0; i < currentBlock.getLength(); i++){ // x
 			for(int y = 0; y < currentBlock.getLength(i); y++){ // y
 				if(currentBlock.getBlock(i, y) != null){
@@ -57,10 +66,10 @@ public class Map {
 	
 	// check if a block can move in the given direction
 	public boolean canMove(int x, int y){
-		int dimension = 0;
-		int position = 0;
+ 		int dimension = 0;
+		Integer position = 0;
 		if(x > 0){		
-			while((position = currentBlock.getRightBlock(dimension)) != -1){
+			while((position = currentBlock.getRightBlock(dimension)) != null){
 				// check if it's next to edge or if the block is colliding against another
 				if((1 + position) >= blocks[dimension + currentBlock.getYPos()].length || 
 						blocks[dimension + currentBlock.getYPos()][position + 1] != defaultBlock){
@@ -71,7 +80,7 @@ public class Map {
 				dimension++;
 			}
 		} else if(x < 0){
-			while((position = currentBlock.getLeftBlock(dimension)) != -1){
+			while((position = currentBlock.getLeftBlock(dimension)) != null){
 				// check if it's next to edge or if the block is colliding against another
 				if((position - 1) < 0 || 
 						blocks[dimension + currentBlock.getYPos()][position - 1] != defaultBlock){
@@ -82,7 +91,7 @@ public class Map {
 				dimension++;
 			}
 		} else if(y > 0){
-			while((position = currentBlock.getBottomBlock(dimension)) != -1){
+			while((position = currentBlock.getBottomBlock(dimension)) != null){
 				// check if it's next to edge or if the block is colliding against another
 				if((position + 1) >= blocks.length || 
 						blocks[position + 1][dimension + currentBlock.getXPos()] != defaultBlock){
@@ -93,12 +102,12 @@ public class Map {
 				dimension++;
 			}
 		} else if(y < 0){
-			while((position = currentBlock.getTopBlock(dimension)) != -1){
+			while((position = currentBlock.getTopBlock(dimension)) != null){
 				// check if it's next to edge or if the block is colliding against another
 				if((position - 1) < 0 || 
 						blocks[position - 1][dimension + currentBlock.getXPos()] != defaultBlock){
-					System.out.println("Error Found at: " + (position-1) + ", " + (dimension + currentBlock.getYPos()));
-					System.out.println("Dimension: " + dimension + " Rot:"  + currentBlock.getRotationAmo());
+//					System.out.println("Error Found at: " + (position-1) + ", " + (dimension + currentBlock.getYPos()));
+//					System.out.println("Dimension: " + dimension + " Rot:"  + currentBlock.getRotationAmo());
 					return false;
 				}
 				dimension++;
@@ -131,19 +140,22 @@ public class Map {
 	}
 	
 	// since its a gui we will go down by adding positive...
-	public void updateY(int y){
+	public boolean updateY(int y){
+		boolean hasNotLost = true;
 		if(canMove(0, y)){
 			resetBlock();
 			currentBlock.changeYPos(y);
 			updateBlock();
 		} else {
 			// check for win and adjust the array
-			System.out.println("Checking For Win");
 			checkWin();
 			currentBlock = nextBlock;
-			updateBlock();
-			setNextBlock();
+			if(hasNotLost = checkLoss()){
+				updateBlock();
+				setNextBlock();
+			} // Will check for loss and adjust block
 		}
+		return hasNotLost;
 	}
 	
 	public void rotate(){
@@ -159,6 +171,7 @@ public class Map {
 		for(int i = 0; i < currentBlock.getLength(0); i++){
 			rowWins = true;
 			for(int y = 0; y < blocks[0].length; y++){
+				System.out.println(i+currentBlock.getYPos() + " " + y);
 				if(blocks[i+currentBlock.getYPos()][y] == defaultBlock){ rowWins = false; break; }
 				System.out.println("Block[" + (i+currentBlock.getYPos()) + "][" + y + "] is a Tetris Block");
 			}
@@ -166,6 +179,27 @@ public class Map {
 				removeRow(i+currentBlock.getYPos());
 			}
 		}
+	}
+	
+	private boolean checkLoss(){
+		boolean hasNotLost = false;
+		if(canMove(0, 1)){
+			hasNotLost = true;
+			currentBlock.changeYPos(1);
+		} else {
+			int oldXPos = currentBlock.getXPos();
+			currentBlock.changeXPos(-oldXPos);
+			for(int i = 0; i < blocks[0].length-currentBlock.getLength(); i++){
+				if(oldXPos != i && canMove(0,  1)){
+					System.out.println(i + " " + oldXPos);
+					currentBlock.changeYPos(1);
+					hasNotLost = true;
+					break;
+				}
+				currentBlock.changeXPos(1);
+			}
+		}
+		return hasNotLost;
 	}
 	
 	private void resetBlock(){
@@ -179,10 +213,10 @@ public class Map {
 	}
 	
 	private void removeRow(int row){
-		System.out.println("Removing Row " + row);
+		++score;
 		for(int i = 0; i < blocks[0].length; i++){
 			blocks[row][i] = defaultBlock;
-			for(int y = row-1; y >= 0 && blocks[y][i] != defaultBlock; y--){
+			for(int y = row-1; y >= 0; y--){
 				blocks[y+1][i] = blocks[y][i];
 				blocks[y][i] = defaultBlock;
 			}
@@ -192,9 +226,23 @@ public class Map {
 	// randomly determine next block
 	public void setNextBlock(){
 		int percent = rand.nextInt(7);
-		if(percent >= 0){
-			nextBlock = new TBlock(blocks[0].length/2 - TBlock.getIntialWidth()/2, 0);
-		}
+		if(percent == 6){
+			nextBlock = new TBlock(blocks[0].length/2 - TBlock.getIntialWidth()/2, -1);
+		} else if(percent == 5){
+			nextBlock = new IBlock(blocks[0].length/2 - IBlock.getIntialWidth()/2, -1);
+		} else if(percent == 4){
+			nextBlock = new OBlock(blocks[0].length/2 - OBlock.getIntialWidth()/2, -1);
+ 		} else if(percent == 3) {
+ 			nextBlock = new JBlock(blocks[0].length/2 - JBlock.getIntialWidth()/2, -1);
+ 		} else if(percent == 2){
+ 			nextBlock = new LBlock(blocks[0].length/2 - LBlock.getIntialWidth()/2, -1);
+ 		} else if(percent == 1){
+ 			nextBlock = new SBlock(blocks[0].length/2 - SBlock.getIntialWidth()/2, -1);
+ 		} else {
+ 			nextBlock = new ZBlock(blocks[0].length/2 - ZBlock.getIntialWidth()/2, -1);
+ 		}
+		// Right now  moving a block will check to see if the botom blocks can move down. 
+		// This means the for JBlock, it checks the 1st row insted of 0th
 	}
 	
 	public Image getGameFieldImage(){
@@ -226,6 +274,29 @@ public class Map {
 			}
 		}
 		return temp;
+	}
+	
+	public Image getGameOverImage(){
+		WritableImage temp = (WritableImage) getGameFieldImage();
+		PixelWriter pw = temp.getPixelWriter();
+	
+		//Create a center label for score display...
+		int height = (int) (temp.getHeight()*.8), width = (int) (temp.getWidth()*2/3);
+		Label l = new Label("Score:\n" + String.valueOf(getScore()));
+		l.setMaxWidth(width); l.setMinWidth(width); l.setPrefWidth(width);
+		l.setMaxHeight(height); l.setMinHeight(height); l.setPrefHeight(height);
+		l.setStyle("-fx-padding: 4.5em; -fx-font: 4em serif; -fx-text-alignment: center; -fx-text-fill: #87cefa;"
+				+ "-fx-background-color: #805aec; -fx-border-color: #5f30e6; -fx-border-width: .5em; ");
+		Scene s = new Scene(new StackPane(l));
+		WritableImage img = new WritableImage(width, height);
+		s.snapshot(img);
+		
+		pw.setPixels((int)(temp.getWidth()-width)/2, (int)(temp.getHeight()-height)/2, (int)img.getWidth(), (int)img.getHeight(), img.getPixelReader(), 0, 0);
+		return temp;
+	}
+	
+	public int getScore(){
+		return score;
 	}
 
 

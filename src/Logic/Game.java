@@ -8,6 +8,7 @@ import javafx.scene.image.ImageView;
 public class Game extends AnimationTimer{
 
 	private ArrayList<String> keyInput;
+	private boolean running;
 	private int frames = 0;
 	
 	private Map map;
@@ -17,52 +18,33 @@ public class Game extends AnimationTimer{
 		this.gameField = gameField;
 		this.nextBlock = nextBlock;
 		this.keyInput = keyInput;
+		running = true;
 		map = new Map(width, height);
 	}
 	
 	
 	@Override
 	public void handle(long now) {
-		
 //		System.out.println("Frame: " + count);
-		
+		if(running){
 		// logic
 		checkInput();
-		if(++frames >= 35) { frames = 0; map.updateY(1); }
+		if(++frames >= 35) { frames = 0; running = map.updateY(1); }
 		
 		// graphics...
 		gameField.setImage(map.getGameFieldImage());
 		nextBlock.setImage(map.getNextBlockImage());
+		} else {
+			gameField.setImage(map.getGameOverImage());
+		}
 	}
 	
-//	public void start(){
-//		running = true;
-//		thread = new Thread(this);
-//		thread.start();
-//	}
-//	
-//	public void stop(){
-//		running = false;
-//		try {
-//			thread.join();
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//	}
-//
-//	@Override
-//	public void run() {
-//		
-//	}
-	
 	public void checkInput(){
-		if(keyInput.contains("W")){ keyInput.remove("W"); map.updateY(-1); }
-		if(keyInput.contains("S")) { keyInput.remove("S"); map.updateY(1); }
+//		if(keyInput.contains("W")){ keyInput.remove("W"); map.updateY(-1); }
+		if(keyInput.contains("S")) { keyInput.remove("S"); running = map.updateY(1);  }
 		else if(keyInput.contains("A")) { keyInput.remove("A"); map.updateX(-1); }
 		else if(keyInput.contains("D")) { keyInput.remove("D"); map.updateX(1); }
 		else if(keyInput.contains("SPACE")) { keyInput.remove("SPACE"); map.rotate(); } 
 	}
-
-	
 
 }
