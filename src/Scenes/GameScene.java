@@ -115,7 +115,6 @@ public class GameScene {
 		pauseBtn.setText("Pause");
 		pauseBtn.setOnMouseClicked(e -> pause());
 		gameField.requestFocus();
-		gameField.setFocusTraversable(true);
 	}
 
 }
