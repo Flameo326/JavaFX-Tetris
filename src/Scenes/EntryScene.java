@@ -31,10 +31,6 @@ public class EntryScene {
 		StackPane centerLabel = new StackPane(title);
 		root.setTop(centerLabel);
 		
-		Label hello = new Label("Hello");
-		hello.setStyle("-fx-padding: " + width/10 + "; -fx-font-size: 48px; -fx-font-family: serif; -fx-font-weight: bold;");
-		root.setCenter(new StackPane(hello));
-		
 		// bottom
 		playBtn = new Button("Play");
 		playBtn.setStyle("-fx-padding: 0 2em; -fx-font-size: 2em");

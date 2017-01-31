@@ -41,7 +41,7 @@ public class GameScene {
 		
 		// left side
 		gameField = new ImageView();
-		
+		gameField.setFocusTraversable(true);
 		root.add(gameField, 1, 1, 1, 10);
 		
 		
@@ -114,6 +114,8 @@ public class GameScene {
 		game.start();
 		pauseBtn.setText("Pause");
 		pauseBtn.setOnMouseClicked(e -> pause());
+		gameField.requestFocus();
+		gameField.setFocusTraversable(true);
 	}
 
 }
