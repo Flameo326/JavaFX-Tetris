@@ -26,6 +26,7 @@ public class Map {
 	private Block defaultBlock;
 	private TetrisBlock currentBlock, nextBlock;
 	private int width, height, score;
+	private boolean hasLost;
 	
 	public Map(int _width, int _height){
 		this(_width, _height, 20, 10);
@@ -64,7 +65,8 @@ public class Map {
 		}
 	}
 	
-	// check if a block can move in the given direction
+	// Right now, it checks if the block at a certain point can move, does not check all blocks. 
+	// Must change and fix to check all blocks
 	public boolean canMove(int x, int y){
  		int dimension = 0;
 		Integer position = 0;
@@ -73,8 +75,8 @@ public class Map {
 				// check if it's next to edge or if the block is colliding against another
 				if((1 + position) >= blocks[dimension + currentBlock.getYPos()].length || 
 						blocks[dimension + currentBlock.getYPos()][position + 1] != defaultBlock){
-					System.out.println("Error Found at: " + (position+1) + ", " + (dimension + currentBlock.getYPos()));
-					System.out.println("Dimension: " + dimension + " "  + currentBlock.getRotationAmo());
+//					System.out.println("Error Found at: " + (position+1) + ", " + (dimension + currentBlock.getYPos()));
+//					System.out.println("Dimension: " + dimension + " "  + currentBlock.getRotationAmo());
 					return false;
 				}
 				dimension++;
@@ -84,8 +86,8 @@ public class Map {
 				// check if it's next to edge or if the block is colliding against another
 				if((position - 1) < 0 || 
 						blocks[dimension + currentBlock.getYPos()][position - 1] != defaultBlock){
-					System.out.println("Error Found at: " + (position+1) + ", " + (dimension + currentBlock.getYPos()));
-					System.out.println("Dimension: " + dimension + " "  + currentBlock.getRotationAmo());
+//					System.out.println("Error Found at: " + (position+1) + ", " + (dimension + currentBlock.getYPos()));
+//					System.out.println("Dimension: " + dimension + " "  + currentBlock.getRotationAmo());
 					return false;
 				}
 				dimension++;
@@ -95,8 +97,8 @@ public class Map {
 				// check if it's next to edge or if the block is colliding against another
 				if((position + 1) >= blocks.length || 
 						blocks[position + 1][dimension + currentBlock.getXPos()] != defaultBlock){
-					System.out.println("Error Found at: " + (position+1) + ", " + (dimension + currentBlock.getYPos()));
-					System.out.println("Dimension: " + dimension + " "  + currentBlock.getRotationAmo());
+//					System.out.println("Error Found at: " + (position+1) + ", " + (dimension + currentBlock.getYPos()));
+//					System.out.println("Dimension: " + dimension + " "  + currentBlock.getRotationAmo());
 					return false;
 				}
 				dimension++;
@@ -116,6 +118,7 @@ public class Map {
 		return true;
 	}
 	
+	// Make rotation more friendly???
 	public boolean canRotate(){
 		for(int i = 0; i < currentBlock.getLength(0); i++){
 			for(int y = 0; y < currentBlock.getLength(); y++){
@@ -123,7 +126,6 @@ public class Map {
 				if(y+currentBlock.getYPos() >= blocks.length || i+currentBlock.getXPos() >= blocks[0].length ||
 						(blocks[y+currentBlock.getYPos()][i+currentBlock.getXPos()] != defaultBlock &&
 						currentBlock.getBlock(i, y) == null)){
-					System.out.println("False");
 					return false;
 				}
 			}
@@ -139,9 +141,7 @@ public class Map {
 		}
 	}
 	
-	// since its a gui we will go down by adding positive...
-	public boolean updateY(int y){
-		boolean hasNotLost = true;
+	public void updateY(int y){
 		if(canMove(0, y)){
 			resetBlock();
 			currentBlock.changeYPos(y);
@@ -150,12 +150,16 @@ public class Map {
 			// check for win and adjust the array
 			checkWin();
 			currentBlock = nextBlock;
-			if(hasNotLost = checkLoss()){
+			// Will check for loss
+			if(checkLoss()){
+				// Updates if has not lost
 				updateBlock();
 				setNextBlock();
-			} // Will check for loss and adjust block
+			}  else {
+				// otherwise they have lost
+				setLoss(true);
+			}
 		}
-		return hasNotLost;
 	}
 	
 	public void rotate(){
@@ -171,9 +175,7 @@ public class Map {
 		for(int i = 0; i < currentBlock.getLength(0); i++){
 			rowWins = true;
 			for(int y = 0; y < blocks[0].length; y++){
-				System.out.println(i+currentBlock.getYPos() + " " + y);
 				if(blocks[i+currentBlock.getYPos()][y] == defaultBlock){ rowWins = false; break; }
-				System.out.println("Block[" + (i+currentBlock.getYPos()) + "][" + y + "] is a Tetris Block");
 			}
 			if(rowWins){
 				removeRow(i+currentBlock.getYPos());
@@ -189,9 +191,8 @@ public class Map {
 		} else {
 			int oldXPos = currentBlock.getXPos();
 			currentBlock.changeXPos(-oldXPos);
-			for(int i = 0; i < blocks[0].length-currentBlock.getLength(); i++){
+			for(int i = 0; i <= blocks[0].length-currentBlock.getLength(); i++){
 				if(oldXPos != i && canMove(0,  1)){
-					System.out.println(i + " " + oldXPos);
 					currentBlock.changeYPos(1);
 					hasNotLost = true;
 					break;
@@ -241,8 +242,10 @@ public class Map {
  		} else {
  			nextBlock = new ZBlock(blocks[0].length/2 - ZBlock.getIntialWidth()/2, -1);
  		}
-		// Right now  moving a block will check to see if the botom blocks can move down. 
-		// This means the for JBlock, it checks the 1st row insted of 0th
+	}
+	
+	public void setLoss(boolean value){
+		hasLost = value;
 	}
 	
 	public Image getGameFieldImage(){
@@ -262,13 +265,13 @@ public class Map {
 	}
 	
 	public Image getNextBlockImage(){
-		WritableImage temp = new WritableImage(4 * Block.getWidth(), 4 * Block.getHeight());
+		WritableImage temp = new WritableImage(nextBlock.getLength() * Block.getWidth(), nextBlock.getLength(0) * Block.getHeight());
 		PixelWriter pw = temp.getPixelWriter();
 		for(int i = 0; i < nextBlock.getLength(); i++){
-			for(int y = 0; y < nextBlock.getLength(0); y++){
+			for(int y = 0; y < nextBlock.getLength(i); y++){
 				Block b = nextBlock.getBlock(i, y);
 				if(b != null){
-					pw.setPixels(y * Block.getWidth(), i * Block.getHeight(), Block.getWidth(), Block.getHeight(),
+					pw.setPixels(i * Block.getWidth(), y * Block.getHeight(), Block.getWidth(), Block.getHeight(),
 						b.getImage().getPixelReader(), 0, 0);
 				}
 			}
@@ -276,6 +279,7 @@ public class Map {
 		return temp;
 	}
 	
+	// Make Loss look prettier...
 	public Image getGameOverImage(){
 		WritableImage temp = (WritableImage) getGameFieldImage();
 		PixelWriter pw = temp.getPixelWriter();
@@ -295,9 +299,11 @@ public class Map {
 		return temp;
 	}
 	
+	public boolean getLoss(){
+		return hasLost;
+	}
+	
 	public int getScore(){
 		return score;
 	}
-
-
 }

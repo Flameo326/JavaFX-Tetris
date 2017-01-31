@@ -69,17 +69,21 @@ public class EntryScene {
 	}
 	
 	public void displayGame(){
-		
+		stage.hide();
+		GameScene game = new GameScene(stage, width, height, false);
+		game.display();
 	}
 	
 	public void displayTutorial(){
 		stage.hide();
-		TutorialScene tut = new TutorialScene(stage, width, height);
+		GameScene tut = new GameScene(stage, width, height, true);
 		tut.display();
 	}
 	
 	public void displaySettings(){
-		
+		stage.hide();
+		SettingsScene settings = new SettingsScene(stage, width, height);
+		settings.display();
 	}
 	
 	public void exit(){
