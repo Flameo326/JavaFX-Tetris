@@ -36,7 +36,7 @@ public class EntryScene {
 		playBtn.setStyle("-fx-padding: 0 2em; -fx-font-size: 2em");
 		playBtn.setDefaultButton(true);
 		playBtn.setOnMouseClicked(e -> displayGame());
-		helpBtn = new Button("Help");
+		helpBtn = new Button("Tutorial");
 		helpBtn.setStyle("-fx-padding: 0 2em; -fx-font-size: 2em");
 		helpBtn.setOnMouseClicked(e -> displayTutorial());
 		settingsBtn = new Button("Settings");
